@@ -1,0 +1,79 @@
+body{
+    background: #2C343F;
+    margin: 0;
+    padding: 0;
+}
+
+h1{
+    text-align: left;
+    font: 40px Arial Rounded MT Bold;
+    color: white;
+    margin-left: 25px;
+}
+
+h2{
+    text-align: center;
+    font: 20px Arial Rounded MT Bold;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #14171C;
+    padding: 10px 20px;
+}
+
+input[type="text"] {
+    padding: 7px;
+    margin-right: 10px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font: 13px Geneva;
+}
+
+button {
+    padding: 8px 16px;
+    background-color: #2C343F; 
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font: 13px Geneva;
+}
+
+.header-left h1 {
+    margin: 0;
+    font-size: 40px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.main-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+}
+
+.search-results, .watchlist {
+    flex: 1;
+    margin: 10px;
+    padding: 20px;
+    background-color: #14171C;
+    color: white;
+    border-radius: 8px;
+}
+
+#movieContainer, #watchlistContainer {
+    background-color: #2C343F;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.note_logo {
+    width: 100px;
+    height: 100px;
+}
+

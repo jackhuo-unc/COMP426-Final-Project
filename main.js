@@ -25,6 +25,11 @@ catch (error) {
 }
 }
 
+// Problem: these two functions work like game of hearts in that
+// they save everything on the client-side. We need to change them
+// to update stuff to the back-end, which will be a sqlite3 db.
+
+// This function
 function display_movie(data) {
     const movie_div = document.getElementById('movie_display');
     movie_div.innerHTML = `
@@ -35,6 +40,21 @@ function display_movie(data) {
     <p>${data.vote_average}</p>
     `;
 }
+
+// This functions adds a new button for a movie with title and
+// an event handler that calls display_movie when clicked.
+function addMovieButton(data) {
+    let watchList = document.getElementById("watchlist");
+    let newButton = document.appendChild(watchList);
+    newButton.appendChild(document.createTextNode(data.title));
+    // this could also be the title
+    buttons4.addEventListener('click', () => {
+        display_movie(data);
+    });
+
+    watchList.appendChild(newButton);
+}
+    
 
 // const movie_api_url = 'http://localhost:3000/quack';
 // const name_api_url = 'http://localhost:3000/'

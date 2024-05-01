@@ -2,19 +2,20 @@ import http from 'http';
 import fs from 'fs';
 import url from 'url';
 import { db, isDbOpen, closeDb } from './db.mjs';
+import path from 'path';
 
-const server = http.createServer((req, res) => {
-try {
-  if (!isDbOpen()) {
-    db.open();
+const server = http.createServer(async (req, res) => {
+  try {
+    if (!isDbOpen()) {
+      db.open();
+    }
+  } catch (e) {
+    console.error(e);
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('Error opening database');
+    return;
   }
-} catch (e) {
-  console.error(e);
-  res.statusCode = 500;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Error opening database');
-  return;
-}
 
   //parse the body of the request
   let body = [];
@@ -28,7 +29,26 @@ try {
       req.body = {}
     }
   });
+  // Inside your request handler...
+  // if (req.url.startsWith('/static/')) {
+  //   // Get the path to the file.
+  //   const filePath = path.join(__dirname, req.url);
 
+  //   // Read the file from the file system.
+  //   fs.readFile(filePath, (err, data) => {
+  //     if (err) {
+  //       res.statusCode = 404;
+  //       res.setHeader('Content-Type', 'text/plain');
+  //       res.end('Not found');
+  //     } else {
+  //       // Set the Content-Type header based on the file extension.
+  //       const ext = path.extname(filePath);
+  //       const contentType = ext === '.css' ? 'text/css' : 'text/plain';
+  //       res.setHeader('Content-Type', contentType);
+  //       res.end(data);
+  //     }
+  //   });
+  // } else 
   if (req.url === '/signup') {
     // Navigate to the signup page.
     fs.readFile('signup.html', (err, data) => {
@@ -74,40 +94,55 @@ try {
       }
     });
   }
-  else if (req.url.startsWith('/login/')) {
-    const parseUrl = url.parse(req.url, true); 
+  else if (req.url.startsWith('/login')) {
+    console.log('made it to login with params')
+    const parseUrl = url.parse(req.url, true);
     const { username, password } = parseUrl.query;
-    
+    console.log('username:', username, 'password:', password);
+
     if (!username || !password) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
       res.end('Invalid username or password');
     }
     else {
-      db.get('SELECT * FROM users WHERE username = ? AND password = ?', req.body.username, req.body.password, (err, user) => {
-        if (err) {
-          res.statusCode = 500;
-          res.setHeader('Content-Type', 'text/plain');
-          res.end('Error logging in');
-        }
-        else if (user) {
+      console.log('running db.get')
+      try {
+        let user = await db.get('SELECT * FROM users WHERE username = ? AND password = ?', username, password);
+        console.log('user:', user);
+        if (user) {
           const sessionId = new Date().getTime().toString();
-          db.run('INSERT INTO sessions(session_id, username) (?, ?)', sessionId, user.username, (err) => {
-            if (err) {
+          console.log('user session id', user, sessionId);
+          try {
+            let session = await db.run('INSERT INTO sessions(session_id, username) VALUES (?, ?)', sessionId, user.username);
+            if (session) {
+              // Set a cookie with the user's ID after they log in.
+              res.setHeader('Set-Cookie', [`username=${user.username}`, `sessionId=${sessionId}`]);
+              res.end('Logged in!');
+            } else {
               res.statusCode = 500;
               res.setHeader('Content-Type', 'text/plain');
               res.end('Error logging in');
-            } else {
-              // Set a cookie with the user's ID after they log in.
-              res.setHeader('Set-Cookie', [`username=${user.username}``sessionId=${sessionId}`]);
-              res.end('Logged in!');
             }
-          });
-        } else {
+          } catch (e) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'text/plain');
+            res.end('Error logging in');
+          }
+        }
+        else {
+          console.log('user dne', user);
+          res.statusCode = 401;
           res.setHeader('Content-Type', 'text/plain');
           res.end('Invalid username or password');
         }
-      });
+      }
+      catch (e) {
+        console.error(e);
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error logging in');
+      }
     }
   } else if (req.url === '/dashboard') {
     // Check if the user is logged in by checking if the cookie is set.
@@ -124,12 +159,12 @@ try {
         res.end('Error loading dashboard');
       } else if (session) {
         // we did /dashboard/username or just /dashboard
-          res.setHeader('Content-Type', 'text/plain');
-          // here would I do the sql stuff to get all the info for this user?
-          // also, why are sql calls not async?
-          let my_movies = (db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
+        res.setHeader('Content-Type', 'text/plain');
+        // here would I do the sql stuff to get all the info for this user?
+        // also, why are sql calls not async?
+        let my_movies = (db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
         res.body.movies = my_movies; // how about this
-          
+
         res.end('Welcome to the dashboard!');
       } else {
         res.setHeader('Content-Type', 'text/plain');
@@ -143,7 +178,7 @@ try {
 });
 
 function getAllMoviesForUser(username) {
-  db.get('SELECT movie_id FROM movies WHERE username = ?', username, (err, movies) => {
+  db.all('SELECT movie_id FROM movies WHERE username = ?', username, (err, movies) => {
     if (err) {
       res.statusCode = 500;
       res.setHeader('Content-Type', 'text/plain');
@@ -151,17 +186,12 @@ function getAllMoviesForUser(username) {
       return;
     }
 
-    res.body.movies = movies;
-      // we did /dashboard/username or just /dashboard
-      res.setHeader('Content-Type', 'text/plain');
-      // here would I do the sql stuff to get all the info for this user?
-      // also, why are sql calls not async?        
-      res.end('Here are all the movies for user.');
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    res.write(JSON.stringify(movies));     
 
-    
   });
 }
-
 
 function addNewMovie(username, movie_id) {
   db.run('INSERT INTO movies VALUES (?,?)', username, movie_id, (err, sqlresponse) => {
@@ -171,16 +201,27 @@ function addNewMovie(username, movie_id) {
       res.end('Error getting movies');
       return null;
     }
-    res.body.movies = movies;
-      // we did /dashboard/username or just /dashboard
-      res.setHeader('Content-Type', 'text/plain');
-      // here would I do the sql stuff to get all the info for this user?
-      // also, why are sql calls not async?        
-      res.end('Here are all the movies for user.');
 
-    
+    res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');    
+      res.end('Added new movie.');    
   });
 }
+
+function deleteMovie(username, movie_id) {
+  db.run('DELETE FROM movies WHERE username = ? AND movie_id = ?', username, movie_id, (err, sqlresponse) => {
+    if (err) {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Error deleting movie');
+      return null;
+    }
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');    
+      res.end('Added new movie.');    
+  });
+}
+
 server.listen(3001, () => console.log('Server listening on port 3001'));
 /*
 const http = require('http');

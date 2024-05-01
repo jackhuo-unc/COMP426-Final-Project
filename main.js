@@ -1,4 +1,5 @@
 // api calls and display
+const server_url = 'http://localhost:3000';
 
 async function get_movie_by_name(name) {
     try {

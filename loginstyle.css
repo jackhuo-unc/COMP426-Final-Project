@@ -11,21 +11,15 @@ body{
 
 p{
     text-align: center;
-    font: 15px Arial Rounded MT Bold;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 15px;
     color: white;
 }
 
 h1{
-    padding: 20px;
     text-align: center;
     font-family: 'Arial Rounded MT Bold', sans-serif;
-    font-size: 25px;
-    color: white;
-}
-
-h1{
-    text-align: left;
-    font: 35px Arial Rounded MT Bold;
+    font-size: 40px;
     color: white;
     margin: 0;
 }
@@ -33,7 +27,8 @@ h1{
 h2{
     text-align: center;
     font-family: 'Arial Rounded MT Bold', sans-serif;
-    font-size: 20px;
+    font-size: 25px;
+    color: white;
 }
 
 header {
@@ -59,12 +54,13 @@ button {
     display: flex;
     align-items: center;  
     justify-content: center;  
-    width: 50%;
+    width: 45%;
     color: white;
     text-decoration: none;  
     border-radius: 4px;
     cursor: pointer;
-    font: 15px Arial Rounded MT Bold;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 15px;
 }
 
 .header-left {
@@ -72,6 +68,16 @@ button {
     margin: 0;
     font-size: 40px;
     align-items: center;
+    text-decoration:none;
+    cursor: pointer;
+    flex-grow: 0;
+}
+
+.header-left a{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
 }
 
 .header-right {
@@ -117,7 +123,7 @@ button {
 }
 
 #sign-up{
-    width: 15%;
+    width: 100px;
     height: 45px;
     margin-left: 20px;
     background-color: white;

@@ -1,2 +1,3 @@
-# COMP426-Final-Project
-Final project for COMP 426
+# Comp426FinalProject
+
+This is the final project

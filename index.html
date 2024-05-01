@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang = "en-US">
+<head>
+    <meta charset="utf-8">
+    <title>Noteboxd</title>
+    <link rel="stylesheet" href="./main.css">
+    <script src="./main.js"></script>
+</head>
+<body>
+
+<header>
+    <div class = "header-left">
+        <img src="./logo.png" alt="logo" class="note-logo">
+        <h1>Noteboxd</h1>
+    </div>
+    <div class = "header-right">
+        <input type = "text" id = "searchInput" placeholder = "Search movies...">
+        <button onclick = "console.log('clicked')">Search</button>
+    </div>
+</header>
+
+<p>What should we watch?</p>
+<br>
+
+<div class="main-container">
+  <div class = "search-title">
+    Search Results
+  </div>
+
+  <div class = "watchlist-title">
+    My Watchlist
+  </div>
+
+  <div class="search-results">
+    Search Results
+    <div id = "movie_display"></div>
+  </div>
+    
+  <div class="watchlist">
+      <button onclick = "get_movie_by_id(123)">
+        Movie1
+      </button>
+      <button onclick = "console.log('clicked')">
+        Movie2
+      </button>
+      <button onclick = "console.log('clicked')">
+        Movie3
+      </button>
+  </div>
+
+</div>
+
+
+</body>
+</html>

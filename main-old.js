@@ -1,7 +1,7 @@
 // import {db} from './db.mjs';
 
 // api calls and display
-const server_url = 'http://localhost:3001';
+const server_url = 'http://localhost:3000';
 
 // called by the submit search button
 async function get_movie_by_name() {
@@ -11,16 +11,16 @@ async function get_movie_by_name() {
         return;
     }
     try {
-        const response = await fetch('https://api.themoviedb.org/3/search/movie?query=' + name + '&api_key=3c86f49ada9b34f379ca5d429d95bd66', {
-            method: 'GET'
-        });
-        let data = await response.json();
-        console.log(data.results[0]);
-        display_movie(data.results[0]);
-    }
-    catch (error) {
-        console.error("Error: in get_movie_by_name()", error);
-    }
+    const response = await fetch('https://api.themoviedb.org/3/search/movie?query=' + name + '&api_key=3c86f49ada9b34f379ca5d429d95bd66', {
+        method: 'GET'
+    });
+    let data = await response.json();
+    console.log(data.results[0]);
+    display_movie(data.results[0]);
+}
+catch (error) {
+    console.error("Error: in get_movie_by_name()", error);
+}
 }
 
 async function get_movie_by_id(id) {
@@ -54,10 +54,7 @@ async function display_movie(data) {
     let addRemoveButton = document.createElement('button');
 
     // how best to have this username?
-
     let my_movies = (await db.all('select movie_id from movies where username = ? and movie_id = ?', username, data.id)).map(s => s.movie_id);
-
-    
     if(my_movies[0] != undefined) { // if this movie exists
         addRemoveButton.appendChild(document.createTextNode("Remove from list"));
         addRemoveButton.addEventListener('click', () => {
@@ -96,29 +93,11 @@ function addMovieButton(data) {
 // btw if this was legit we would need to do a GET http request to 
 // the backend database server instead of just db.all
 async function drawAllButtons(username) {
-
-    try {
-        const response = await fetch(`${server_url}/dashboard/${username}`, {
-            method: 'GET'
-        });
-        let listOfMovieIds = await response.json();
-        console.log(listOfMovieIds);
-
-        listOfMovieIds.forEach(async movie => {
-            let data = await get_movie_by_id(movie.id);
-            addMovieButton(data);
-        });
-    }
-    catch (error) {
-        console.error("Error: in drawAllButtons()", error);
-    }
-
-    // this is the old version: 
-    // let my_movies = (await db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
-    // my_movies.forEach(async movie => {
-    //     let data = await get_movie_by_id(movie.id);
-    //     addMovieButton(data);
-    // });
+    let my_movies = (await db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
+    my_movies.forEach(async movie => {
+        let data = await get_movie_by_id(movie.id);
+        addMovieButton(data);
+    });
 }
 
 
@@ -128,56 +107,16 @@ async function drawAllButtons(username) {
 // since we only have one movie at time(which is displayed on left)
 // which we could potentially add.
 async function addNewMovie(username, data) {
-
-    try {
-        const response = await fetch(`${server_url}/dashboard/${username}`, {
-            method: 'POST'
-        });
-        let listOfMovieIds = await response.json();
-        console.log(listOfMovieIds);
-        addMovieButton(data);
-    }
-    catch (error) {
-        console.error("Error: in drawAllButtons()", error);
-    }
-
-    // The old version: 
-    // await db.run('INSERT INTO movies VALUES (?,?)', username, data.id);
-    // addMovieButton(data);
+    await db.run('INSERT INTO movies VALUES (?,?)', username, data.id);
+    addMovieButton(data);
 }
-
 async function deleteNewMovie(username, data) {
-    try {
-        const response = await fetch(`${server_url}/dashboard/${username}?movie_id=${data.id}`, {
-            method: 'DELETE'
-        });
-        let watchList = document.getElementById("watchlist");
-        let buttonToBeDeleted = document.getElementById(data.id);
-        watchList.removeChild(buttonToBeDeleted);
-
-        }
-    catch (error) {
-        console.error("Error: in deleteNewMovie()", error);
-    }
-
-    // The old version: 
-    // await db.run('delete from movies where username = ? AND movie_id = ?', username, movie_id);
-    // let watchList = document.getElementById("watchlist");
-    // let buttonToBeDeleted = document.getElementById(data.id);
-    // watchList.removeChild(buttonToBeDeleted);
-
-    
+    await db.run('delete from movies where username = ? AND movie_id = ?', username, movie_id);
+    let watchList = document.getElementById("watchlist");
+    let buttonToBeDeleted = document.getElementById(data.id);
+    watchList.removeChild(buttonToBeDeleted);
 }
     
-
-
-
-
-
-
-
-
-
 
 // const movie_api_url = 'http://localhost:3000/quack';
 // const name_api_url = 'http://localhost:3000/'

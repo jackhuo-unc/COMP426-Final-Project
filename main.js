@@ -1,16 +1,25 @@
 // api calls and display
 const server_url = 'http://localhost:3000';
 
-async function get_movie_by_name(name) {
+
+// called by the submit search button
+async function get_movie_by_name() {
+    let name = document.getElementById("searchInput")
+                .getAttribute("value");
+    if(name == "" || name == null || name == undefined) {
+        return;
+    }
+
     try {
     const response = await fetch('https://api.themoviedb.org/3/search/movie?query=' + name + '&api_key=3c86f49ada9b34f379ca5d429d95bd66', {
         method: 'GET'
     });
     let data = await response.json();
     console.log(data.results[0]);
+    display_movie(data.results[0]);
 }
 catch (error) {
-    console.error("Error:", error);
+    console.error("Error: in get_movie_by_name()", error);
 }
 }
 
@@ -29,8 +38,10 @@ catch (error) {
 // Problem: these two functions work like kind of like game of hearts
 // in that they save everything on the client-side. 
 
-// This function
-function display_movie(data) {
+// This function displays the movie info on the left side
+// could be called by search or by clicking on a button
+// will query db and add an add or remove button accordingly
+async function display_movie(data) {
     const movie_div = document.getElementById('movie_display');
     movie_div.innerHTML = `
     <img src= "https://image.tmdb.org/t/p/w500${data.poster_path}" alt="MOVIE">
@@ -39,6 +50,26 @@ function display_movie(data) {
     <p>${data.overview}</p>
     <p>${data.vote_average}</p>
     `;
+
+    let addRemoveButton = document.createElement('button');
+
+    // how best to have this username?
+    let my_movies = (await db.all('select movie_id from movies where username = ? and movie_id = ?', username, data.id)).map(s => s.movie_id);
+    if(my_movies[0] != undefined) { // if this movie exists
+        addRemoveButton.appendChild(document.createTextNode("Remove from list"));
+        addRemoveButton.addEventListener('click', () => {
+            deleteNewMovie(data);
+        });
+        movie_div.appendChild(addMovieButton);
+        return;
+    }
+    // else: this movie does not yet exist
+    addRemoveButton.appendChild(document.createTextNode("Add to list"));
+        addRemoveButton.addEventListener('click', () => {
+            addMovieButton(data);
+        });
+        movie_div.appendChild(addMovieButton);
+        return;
 }
 
 // This functions adds a new button for a movie with title and

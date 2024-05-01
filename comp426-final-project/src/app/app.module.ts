@@ -10,11 +10,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 
 import { MainComponent } from './main/main.component';
-import {}
+import { LoginComponent } from './login/login.component';
+import { MovieDisplay } from './movie-display-widget/movie-display.widget';
 
 @NgModule({
   declarations: [
-    MainComponent
+    MainComponent,
+    LoginComponent,
+    MovieDisplay
   ],
   imports: [
     BrowserModule,
@@ -29,3 +32,4 @@ import {}
   bootstrap: [MainComponent]
 })
 export class AppModule { }
+

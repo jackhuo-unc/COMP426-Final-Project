@@ -1,5 +1,6 @@
 import http from 'http';
 import fs from 'fs';
+import url from 'url';
 import { db, isDbOpen, closeDb } from './db.mjs';
 
 const server = http.createServer((req, res) => {
@@ -73,8 +74,11 @@ try {
       }
     });
   }
-  else if (req.url === '/login/confirm') {
-    if (!req.body || !req.body.username || !req.body.password) {
+  else if (req.url.startsWith('/login/')) {
+    const parseUrl = url.parse(req.url, true); 
+    const { username, password } = parseUrl.query;
+    
+    if (!username || !password) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
       res.end('Invalid username or password');

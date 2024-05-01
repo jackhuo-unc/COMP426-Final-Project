@@ -43,7 +43,7 @@ try {
   }
   else if (req.url === '/signup/confirm') {
     // Create a new user in the database.
-    if (!req.body.username && !req.body.password) {
+    if (!req.body || !req.body.username || !req.body.password) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
       res.end('Invalid username or password');

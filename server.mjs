@@ -3,6 +3,7 @@ import fs from 'fs';
 import url from 'url';
 import { db, isDbOpen, closeDb } from './db.mjs';
 import path from 'path';
+import e from 'express';
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -177,49 +178,47 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-function getAllMoviesForUser(username) {
-  db.all('SELECT movie_id FROM movies WHERE username = ?', username, (err, movies) => {
-    if (err) {
-      res.statusCode = 500;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('Error getting movies');
-      return;
-    }
-
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    res.write(JSON.stringify(movies));     
-
-  });
-}
-
-function addNewMovie(username, movie_id) {
-  db.run('INSERT INTO movies VALUES (?,?)', username, movie_id, (err, sqlresponse) => {
-    if (err) {
-      res.statusCode = 500;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('Error getting movies');
-      return null;
-    }
-
+async function getAllMoviesForUser(username, res) {
+  try {
+    let allMovies = await db.all('SELECT movie_id FROM movies WHERE username = ?');
     res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');    
-      res.end('Added new movie.');    
-  });
+    res.setHeader('Content-Type', 'application/json');
+    res.write(JSON.stringify(allMovies));
+  } catch (error) {
+    console.log('error was encountered: ' + error)
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('Error getting movies');
+    console.log('error was encountered: ' + error)
+  }
 }
 
-function deleteMovie(username, movie_id) {
-  db.run('DELETE FROM movies WHERE username = ? AND movie_id = ?', username, movie_id, (err, sqlresponse) => {
-    if (err) {
-      res.statusCode = 500;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('Error deleting movie');
-      return null;
-    }
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');    
-      res.end('Added new movie.');    
-  });
+async function addNewMovie(username, movie_id, res) {
+  try {
+    await db.run('INSERT INTO movies VALUES (?,?)', username, movie_id);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');    
+    res.end('Added new movie.');  
+  } catch (error) {
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('Error adding movie');
+    console.log('error was encountered: ' + error)
+  }
+}
+
+async function deleteMovie(username, movie_id, res) {
+  try {
+    await db.run('DELETE FROM movies WHERE username = ? AND movie_id = ?', username, movie_id);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');    
+    res.end('Deleted movie.');  
+  } catch (error) {
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('Error deleting movie');
+    console.log('error was encountered: ' + error)
+  }
 }
 
 server.listen(3001, () => console.log('Server listening on port 3001'));

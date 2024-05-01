@@ -1,0 +1,84 @@
+body{
+    background: #2C343F;
+    margin: 0;
+    padding: 0;
+}
+
+p{
+    padding: 20px;
+    text-align: center;
+    font: 25px Arial Rounded MT Bold;
+    color: white;
+}
+
+h1{
+    text-align: left;
+    font: 35px Arial Rounded MT Bold;
+    color: white;
+    margin: 0;
+}
+
+h2{
+    text-align: center;
+    font: 20px Arial Rounded MT Bold;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #14171C;
+    padding: 10px 20px;
+    height: 60px;
+}
+
+button {
+    padding: 8px 16px;
+    background-color: #2C343F; 
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font: 15px Arial Rounded MT Bold;
+    width: 100%
+}
+
+.header-left {
+    display: flex;
+    margin: 0;
+    font-size: 40px;
+    align-items: center;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.note-logo {
+    width: 90px;
+    height: 90px;
+    margin-right: 5px;
+}
+
+.login-container{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font: 16px Arial Rounded MT Bold;
+}
+
+.login-form{
+    padding:20px;
+    background-color: white;
+    border-radius: 5px;
+    width: 40%;
+}
+
+.login-form input[type="text"]{
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; 
+}

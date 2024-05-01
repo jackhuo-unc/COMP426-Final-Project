@@ -4,22 +4,31 @@ body{
     padding: 0;
 }
 
+@font-face {
+    font-family: 'Arial Rounded MT Bold';
+    src: url('ARLRDBD_0.TTF') format('truetype');
+}
+
 p{
-    padding: 20px;
     text-align: center;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 20px;
     color: white;
 }
 
 h1{
     text-align: left;
-    font: 40px Arial Rounded MT Bold;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 40px;
     color: white;
     margin: 0;
 }
 
 h2{
     text-align: center;
-    font: 20px Arial Rounded MT Bold;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 20px;
+    color: white;
 }
 
 header {
@@ -27,6 +36,7 @@ header {
     justify-content: space-between;
     background-color: #14171C;
     padding: 10px 20px;
+    height: 60px;
 }
 
 input[type="text"] {
@@ -43,7 +53,9 @@ button {
     color: white;
     cursor: pointer;
     border-radius: 5px;
-    font: 13px Geneva;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 15px;
+    width: 100%
 }
 
 .header-left {
@@ -51,12 +63,58 @@ button {
     margin: 0;
     font-size: 40px;
     align-items: center;
+    text-decoration:none;
+    cursor: pointer;
+    flex-grow: 0;
+}
+
+.header-left a{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
 }
 
 .header-right {
     display: flex;
     align-items: center;
+    flex-grow: 0;
 }
+
+.header-links{
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: flex-end;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 15px;
+}
+
+.header-link {
+    margin-right: 20px;
+    text-decoration: none;
+    color: white; 
+    font-size: 16px; 
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+@media (max-width: 750px) {
+    .header-links {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .header-right {
+        display: none;
+    }
+}
+
+.header-links:focus {
+    outline: none;  
+}
+
 
 .main-container {
     display: grid;
@@ -71,6 +129,7 @@ button {
     align-self: center;
     color: white;
     font-size: 20px;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
     
 }
 
@@ -78,8 +137,9 @@ button {
     align-self: center;
     color: white;
     font-size: 20px;
-
+    font-family: 'Arial Rounded MT Bold', sans-serif;
 }
+
 
 .search-results {
     display: flex;
@@ -89,6 +149,8 @@ button {
     background-color: #14171C;
     color: white;
     border-radius: 8px;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 15px;
 }
 
 .watchlist {
@@ -100,13 +162,14 @@ button {
     color: white;
     border-radius: 8px;
     flex-direction: column;
-
+    
 }
 
 #movieContainer, #watchlistContainer {
     background-color: #2C343F;
     border-radius: 5px;
     padding: 10px;
+    
 }
 
 .note-logo {

@@ -10,15 +10,23 @@
 
 <header>
     <div class = "header-left">
+      <a href="index.html">
         <img src="./logo.png" alt="logo" class="note-logo">
         <h1>Noteboxd</h1>
+        </a>
     </div>
+
+    <div class = "header-links">
+      <a href="login.html" class="header-link">LOG IN</a>
+    </div>
+
     <div class = "header-right">
         <input type = "text" id = "searchInput" placeholder = "Search movies...">
         <button onclick = "get_movie_by_name()">Search</button>
     </div>
 </header>
 
+<br>
 <p>What should we watch?</p>
 <br>
 
@@ -32,7 +40,6 @@
   </div>
 
   <div class="search-results">
-    Search Results
     <div id = "movie_display"></div>
   </div>
     

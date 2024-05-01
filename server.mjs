@@ -120,10 +120,10 @@ try {
         res.end('Error loading dashboard');
       } else if (session) {
         // we did /dashboard/username or just /dashboard
-        res.setHeader('Content-Type', 'text/plain');
-        // here would I do the sql stuff to get all the info for this user?
-        // also, why are sql calls not async?
-        let my_movies = (db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
+          res.setHeader('Content-Type', 'text/plain');
+          // here would I do the sql stuff to get all the info for this user?
+          // also, why are sql calls not async?
+          let my_movies = (db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
         res.body.movies = my_movies; // how about this
           
         res.end('Welcome to the dashboard!');

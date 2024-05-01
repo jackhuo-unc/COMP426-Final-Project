@@ -25,9 +25,8 @@ catch (error) {
 }
 }
 
-// Problem: these two functions work like game of hearts in that
-// they save everything on the client-side. We need to change them
-// to update stuff to the back-end, which will be a sqlite3 db.
+// Problem: these two functions work like kind of like game of hearts
+// in that they save everything on the client-side. 
 
 // This function
 function display_movie(data) {
@@ -47,12 +46,43 @@ function addMovieButton(data) {
     let watchList = document.getElementById("watchlist");
     let newButton = document.appendChild(watchList);
     newButton.appendChild(document.createTextNode(data.title));
+    newButton.setAttribute('id', data.id);
     // this could also be the title
     buttons4.addEventListener('click', () => {
         display_movie(data);
     });
 
     watchList.appendChild(newButton);
+}
+
+// this is an async function that draws all buttons for the movies
+// the user already has in the database. They may have movies from 
+// a previous session.
+// btw if this was legit we would need to do a GET http request to 
+// the backend database server instead of just db.all
+async function drawAllButtons(username) {
+    let my_movies = (await db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
+    my_movies.forEach(async movie => {
+        let data = await get_movie_by_id(movie.id);
+        addMovieButton(data);
+    });
+}
+
+
+// this function should be run when we click the add new movie button
+// we need to store this data variable somewhere, maybe globally or
+// with the button idk.
+// since we only have one movie at time(which is displayed on left)
+// which we could potentially add.
+async function addNewMovie(username, data) {
+    await db.run('INSERT INTO movies VALUES (?,?)', username, data.id);
+    addMovieButton(data);
+}
+async function deleteNewMovie(username, data) {
+    await db.run('delete from movies where username = ? AND movie_id = ?', username, movie_id);
+    let watchList = document.getElementById("watchlist");
+    let buttonToBeDeleted = document.getElementById(data.id);
+    watchList.removeChild(buttonToBeDeleted);
 }
     
 

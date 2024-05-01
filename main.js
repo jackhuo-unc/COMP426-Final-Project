@@ -1,15 +1,15 @@
+// import {db} from './db.mjs';
+
 // api calls and display
 const server_url = 'http://localhost:3000';
 
-
 // called by the submit search button
 async function get_movie_by_name() {
-    let name = document.getElementById("searchInput")
-                .getAttribute("value");
+    let name = document.getElementById("searchInput").value;
     if(name == "" || name == null || name == undefined) {
+        console.log("The name is empty");
         return;
     }
-
     try {
     const response = await fetch('https://api.themoviedb.org/3/search/movie?query=' + name + '&api_key=3c86f49ada9b34f379ca5d429d95bd66', {
         method: 'GET'

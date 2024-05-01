@@ -4,22 +4,31 @@ body{
     padding: 0;
 }
 
+@font-face {
+    font-family: 'Arial Rounded MT Bold';
+    src: url('ARLRDBD_0.TTF') format('truetype');
+}
+
 p{
     text-align: center;
-    font: 15px Arial Rounded MT Bold;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 15px;
     color: white;
 }
 
 h1{
-    padding: 20px;
     text-align: center;
-    font: 25px Arial Rounded MT Bold;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 40px;
     color: white;
+    margin: 0;
 }
 
 h2{
     text-align: center;
-    font: 20px Arial Rounded MT Bold;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 25px;
+    color: white;
 }
 
 header {
@@ -36,7 +45,8 @@ button {
     color: white;
     cursor: pointer;
     border-radius: 5px;
-    font: 15px Arial Rounded MT Bold;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 15px;
     width: 100%
 }
 
@@ -44,12 +54,12 @@ button {
     display: flex;
     align-items: center;  
     justify-content: center;  
-    width: 50%;
     color: white;
     text-decoration: none;  
     border-radius: 4px;
     cursor: pointer;
-    font: 15px Arial Rounded MT Bold;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 15px;
 }
 
 .header-left {
@@ -57,6 +67,16 @@ button {
     margin: 0;
     font-size: 40px;
     align-items: center;
+    text-decoration:none;
+    cursor: pointer;
+    flex-grow: 0;
+}
+
+.header-left a{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
 }
 
 .header-right {
@@ -75,7 +95,8 @@ button {
     justify-content: center;
     align-items: center;
     height: 100%;
-    font: 16px Arial Rounded MT Bold;
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    font-size: 16px;
 }
 
 .login-form{
@@ -101,7 +122,7 @@ button {
 }
 
 #sign-in{
-    width: 15%;
+    width: 100px;
     height: 45px;
     margin-left: 20px;
     background-color: white;

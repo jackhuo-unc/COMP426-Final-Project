@@ -119,16 +119,12 @@ try {
         res.setHeader('Content-Type', 'text/plain');
         res.end('Error loading dashboard');
       } else if (session) {
-        if(res.query == undefined) { // we did /dashboard/username
-          res.setHeader('Content-Type', 'text/plain');
-          // here would I do the sql stuff to get all the info for this user?
-          // also, why are sql calls not async?
-          let my_movies = (db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
-          res.body.movies = my_movies; // how about this
-        }
-        else { // we did GET /dashboard/username?movie_id=5
-          let my_movies = (db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
-        }
+        // we did /dashboard/username or just /dashboard
+        res.setHeader('Content-Type', 'text/plain');
+        // here would I do the sql stuff to get all the info for this user?
+        // also, why are sql calls not async?
+        let my_movies = (db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
+        res.body.movies = my_movies; // how about this
           
         res.end('Welcome to the dashboard!');
       } else {
@@ -142,6 +138,45 @@ try {
   }
 });
 
+function getAllMoviesForUser(username) {
+  db.get('SELECT movie_id FROM movies WHERE username = ?', username, (err, movies) => {
+    if (err) {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Error getting movies');
+      return;
+    }
+
+    res.body.movies = movies;
+      // we did /dashboard/username or just /dashboard
+      res.setHeader('Content-Type', 'text/plain');
+      // here would I do the sql stuff to get all the info for this user?
+      // also, why are sql calls not async?        
+      res.end('Here are all the movies for user.');
+
+    
+  });
+}
+
+
+function addNewMovie(username, movie_id) {
+  db.run('INSERT INTO movies VALUES (?,?)', username, movie_id, (err, sqlresponse) => {
+    if (err) {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Error getting movies');
+      return null;
+    }
+    res.body.movies = movies;
+      // we did /dashboard/username or just /dashboard
+      res.setHeader('Content-Type', 'text/plain');
+      // here would I do the sql stuff to get all the info for this user?
+      // also, why are sql calls not async?        
+      res.end('Here are all the movies for user.');
+
+    
+  });
+}
 server.listen(3001, () => console.log('Server listening on port 3001'));
 /*
 const http = require('http');

@@ -178,7 +178,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 function getAllMoviesForUser(username) {
-  db.get('SELECT movie_id FROM movies WHERE username = ?', username, (err, movies) => {
+  db.all('SELECT movie_id FROM movies WHERE username = ?', username, (err, movies) => {
     if (err) {
       res.statusCode = 500;
       res.setHeader('Content-Type', 'text/plain');
@@ -186,17 +186,12 @@ function getAllMoviesForUser(username) {
       return;
     }
 
-    res.body.movies = movies;
-    // we did /dashboard/username or just /dashboard
-    res.setHeader('Content-Type', 'text/plain');
-    // here would I do the sql stuff to get all the info for this user?
-    // also, why are sql calls not async?        
-    res.end('Here are all the movies for user.');
-
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    res.write(JSON.stringify(movies));     
 
   });
 }
-
 
 function addNewMovie(username, movie_id) {
   db.run('INSERT INTO movies VALUES (?,?)', username, movie_id, (err, sqlresponse) => {
@@ -206,16 +201,27 @@ function addNewMovie(username, movie_id) {
       res.end('Error getting movies');
       return null;
     }
-    res.body.movies = movies;
-    // we did /dashboard/username or just /dashboard
-    res.setHeader('Content-Type', 'text/plain');
-    // here would I do the sql stuff to get all the info for this user?
-    // also, why are sql calls not async?        
-    res.end('Here are all the movies for user.');
 
-
+    res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');    
+      res.end('Added new movie.');    
   });
 }
+
+function deleteMovie(username, movie_id) {
+  db.run('DELETE FROM movies WHERE username = ? AND movie_id = ?', username, movie_id, (err, sqlresponse) => {
+    if (err) {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Error deleting movie');
+      return null;
+    }
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');    
+      res.end('Added new movie.');    
+  });
+}
+
 server.listen(3001, () => console.log('Server listening on port 3001'));
 /*
 const http = require('http');

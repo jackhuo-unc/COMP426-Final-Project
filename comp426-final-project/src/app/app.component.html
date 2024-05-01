@@ -9,27 +9,42 @@
 
 <header>
     <div class = "header-left">
-        <img src="logo.png" alt="logo" class="note-logo">
+        <img src="comp426-final-project\src\app\logo.png" alt="logo" class="note-logo">
         <h1>Noteboxd</h1>
     </div>
     <div class = "header-right">
         <input type = "text" id = "searchInput" placeholder = "Search movies...">
-        <button onclick = "searchMovies()">Search</button>
+        <button onclick = "console.log('clicked')">Search</button>
     </div>
 </header>
 
 <p>What should we watch?</p>
 <br>
 
-
 <div class="main-container">
-    <div class="search-results">
-        <h2>Search Results</h2>
-    </div>
+  <div class = "search-title">
+    Search Results
+  </div>
+
+  <div class = "watchlist-title">
+    My Watchlist
+  </div>
+
+  <div class="search-results">
+    Search Results
+  </div>
     
-    <div class="watchlist">
-        <h2>My Watchlist</h2>
-    </div>
+  <div class="watchlist">
+      <button onclick = "console.log('clicked')">
+        Movie1
+      </button>
+      <button onclick = "console.log('clicked')">
+        Movie2
+      </button>
+      <button onclick = "console.log('clicked')">
+        Movie3
+      </button>
+  </div>
 
 </div>
 

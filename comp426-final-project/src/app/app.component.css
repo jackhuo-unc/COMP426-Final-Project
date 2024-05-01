@@ -60,12 +60,30 @@ button {
 }
 
 .main-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: 70% 30%;
+    grid-template-rows: 30px auto;
     justify-content: space-around;
+    background-color: #29292b;
     padding: 20px;
 }
 
+.search-title {
+    align-self: center;
+    color: white;
+    font-size: 20px;
+    
+}
+
+.watchlist-title{
+    align-self: center;
+    color: white;
+    font-size: 20px;
+
+}
+
 .search-results {
+    display: flex;
     flex: 1;
     margin: 10px;
     padding: 20px;
@@ -75,12 +93,15 @@ button {
 }
 
 .watchlist {
+    display: flex;
     flex: 1;
     margin: 10px;
     padding: 20px;
     background-color: #14171C;
     color: white;
     border-radius: 8px;
+    flex-direction: column;
+
 }
 
 #movieContainer, #watchlistContainer {

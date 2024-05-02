@@ -30,26 +30,6 @@ const server = http.createServer(async (req, res) => {
       req.body = {}
     }
   });
-  // Inside your request handler...
-  // if (req.url.startsWith('/static/')) {
-  //   // Get the path to the file.
-  //   const filePath = path.join(__dirname, req.url);
-
-  //   // Read the file from the file system.
-  //   fs.readFile(filePath, (err, data) => {
-  //     if (err) {
-  //       res.statusCode = 404;
-  //       res.setHeader('Content-Type', 'text/plain');
-  //       res.end('Not found');
-  //     } else {
-  //       // Set the Content-Type header based on the file extension.
-  //       const ext = path.extname(filePath);
-  //       const contentType = ext === '.css' ? 'text/css' : 'text/plain';
-  //       res.setHeader('Content-Type', contentType);
-  //       res.end(data);
-  //     }
-  //   });
-  // } else 
   if (req.url === '/signup') {
     // Navigate to the signup page.
     fs.readFile('signup.html', (err, data) => {
@@ -63,24 +43,49 @@ const server = http.createServer(async (req, res) => {
       }
     });
   }
-  else if (req.url === '/signup/confirm') {
+  else if (req.url.startsWith('/signup')) {
     // Create a new user in the database.
-    if (!req.body || !req.body.username || !req.body.password) {
+    const parseUrl = url.parse(req.url, true);
+    const { username, password } = parseUrl.query;
+    if (!username || !password) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
       res.end('Invalid username or password');
     }
     else {
-      db.run('INSERT INTO users(username, password) (?, ?)', req.body.username, req.body.password, (err) => {
-        if (err) {
+      try {
+        let new_user = await db.run('INSERT INTO users(username, password) VALUES (?, ?)', username, password);
+        if (new_user) {
+          const sessionId = new Date().getTime().toString();
+          console.log('user session id', user, sessionId);
+          try {
+            let session = await db.run('INSERT INTO sessions(session_id, username) VALUES (?, ?)', sessionId, user.username);
+            if (session) {
+              // Set a cookie with the user's ID after they log in.
+              res.setHeader('Set-Cookie', [`username=${user.username}`, `sessionId=${sessionId}`]);
+              res.end('Signed up!');
+            } else {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'text/plain');
+              res.end('Error signing up, no session created');
+            }
+          } catch (e) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'text/plain');
+            res.end('Error signing up');
+          }
+        } else {
           res.statusCode = 500;
           res.setHeader('Content-Type', 'text/plain');
           res.end('Error signing up');
-        } else {
-          res.setHeader('Content-Type', 'text/plain');
-          res.end('Signed up!');
         }
-      });
+      }
+      catch (e) {
+        console.error(e);
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error signing up');
+      }
     }
   } else if (req.url === '/login') {
     // Navigate to the login page.
@@ -119,11 +124,13 @@ const server = http.createServer(async (req, res) => {
             if (session) {
               // Set a cookie with the user's ID after they log in.
               res.setHeader('Set-Cookie', [`username=${user.username}`, `sessionId=${sessionId}`]);
+              res.statusCode = 200;
+              res.setHeader('Location', '/dashboard');
               res.end('Logged in!');
             } else {
               res.statusCode = 500;
               res.setHeader('Content-Type', 'text/plain');
-              res.end('Error logging in');
+              res.end('Error logging in, no session created');
             }
           } catch (e) {
             res.statusCode = 500;
@@ -147,7 +154,8 @@ const server = http.createServer(async (req, res) => {
     }
   } else if (req.url.startsWith('/dashboard')) {
     // Check if the user is logged in by checking if the cookie is set.
-    const cookies = req.headers.cookie ? req.headers.cookie.split('; ').reduce((cookies, cookie) => {
+    const cookies = req.headers.cookie ? 
+    req.headers.cookie.split('; ').reduce((cookies, cookie) => {
       const [name, value] = cookie.split('=');
       cookies[name] = value;
       return cookies;

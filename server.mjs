@@ -177,6 +177,7 @@ const server = http.createServer(async (req, res) => {
       deleteMovie(cookies[username], res);
     }
   }
+});
 
 
 async function getAllMoviesForUser(username, res) {

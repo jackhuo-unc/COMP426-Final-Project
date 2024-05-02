@@ -43,14 +43,17 @@ header {
 
 input[type="text"] {
     padding: 7px;
-    margin-right: 10px;
+    margin-right: 20px;
     border: 2px solid #ccc;
     border-radius: 4px;
-    font: 13px Geneva;
+    font: 15px Geneva;
+    width: 200px;
 }
 
 button {
     padding: 8px 16px;
+    margin-top: 1px;
+    margin-bottom: 1px;
     background-color: #2C343F; 
     color: white;
     cursor: pointer;
@@ -131,7 +134,7 @@ button {
     align-self: center;
     margin-left: 15px;
     color: white;
-    font-size: 20px;
+    font-size: 22px;
     font-family: 'Arial Rounded MT Bold', sans-serif;
     
 }
@@ -140,7 +143,7 @@ button {
     margin-left: 15px;
     align-self: center;
     color: white;
-    font-size: 20px;
+    font-size: 22px;
     font-family: 'Arial Rounded MT Bold', sans-serif;
 }
 
@@ -197,4 +200,8 @@ button {
     margin-right: auto;
     font-family: 'Arial Rounded MT Bold', sans-serif;
     font-size: 18px;
+}
+
+#logoutbutton {
+    margin-right: 10px;
 }

@@ -101,8 +101,7 @@ async function display_movie(data) {
     <h2>${data.title}</h2>
     <h2>Released: ${data.release_date}</h3>
     <p>${data.overview}</p>
-    <p>Rating: ${data.vote_average} / 10</p>
-    `;
+    <p>Rating: ${data.vote_average} / 10</p>`;
 
     let addRemoveButton = document.createElement('button');
     addRemoveButton.setAttribute('id', 'addRemoveButton');
@@ -227,7 +226,8 @@ async function addNewMovie(data) {
         let listOfMovieIds = response;
         console.log(listOfMovieIds);
         addMovieButton(data);
-        moviesData = moviesData.push(data);
+        console.log("pushing " + data);
+        moviesData[data.id] = data;
     }
     catch (error) {
         console.error("Error: in drawAllButtons()", error);

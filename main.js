@@ -1,7 +1,26 @@
 // import {db} from './db.mjs';
+// document.onload = async function() {
+//     console.log('on load', moviesData);
+//     drawAllButtons(movieData);
+// }
+console.log('main.js loaded', moviesData);
+Promise.all(moviesData.map(async obj => await get_movie_by_id(obj.movie_id)))
+.then(newMoviesData => {
+    moviesData = newMoviesData;
+    drawAllButtons();
+});
 
 // api calls and display
 const server_url = 'http://localhost:3001';
+
+function logMoviesData() {
+    if (moviesData)
+        console.log("Movies data: ", moviesData);
+    else {
+        console.log("Movies data is empty");
+    }
+}
+logMoviesData();
 
 // called by the submit search button
 async function get_movie_by_name() {
@@ -28,7 +47,7 @@ async function get_movie_by_id(id) {
     const response = await fetch('https://api.themoviedb.org/3/movie/' + id + '?api_key=3c86f49ada9b34f379ca5d429d95bd66', {
         method: 'GET'
     });
-    display_movie(await response.json());
+    return await response.json();
 }
 catch (error) {
     console.error("Error:", error);
@@ -55,38 +74,57 @@ async function display_movie(data) {
 
     // how best to have this username?
 
-    let my_movies = (await db.all('select movie_id from movies where username = ? and movie_id = ?', username, data.id)).map(s => s.movie_id);
+    //let my_movies = (await db.all('select movie_id from movies where username = ? and movie_id = ?', username, data.id)).map(s => s.movie_id);
 
-    
-    if(my_movies[0] != undefined) { // if this movie exists
+    if (moviesData.map(movie => movie.id).includes(data.id)) {
         addRemoveButton.appendChild(document.createTextNode("Remove from list"));
-        addRemoveButton.addEventListener('click', () => {
-            deleteNewMovie(data);
-        });
-        movie_div.appendChild(addMovieButton);
-        return;
+            addRemoveButton.addEventListener('click', async () => {
+                await deleteNewMovie(data);
+            });
+            
+            movie_div.appendChild(addRemoveButton);
+            return;
     }
-    // else: this movie does not yet exist
-    addRemoveButton.appendChild(document.createTextNode("Add to list"));
-        addRemoveButton.addEventListener('click', () => {
+    else {
+        addRemoveButton.appendChild(document.createTextNode("Add to list"));
+        addRemoveButton.addEventListener('click', async () => {
+            await addNewMovie(data);
             addMovieButton(data);
         });
-        movie_div.appendChild(addMovieButton);
+        movie_div.appendChild(addRemoveButton);
         return;
+    }
+    
+    // if(moviesData[] != null) { // if this movie exists
+    //     addRemoveButton.appendChild(document.createTextNode("Remove from list"));
+    //     addRemoveButton.addEventListener('click', () => {
+    //         deleteNewMovie(data);
+    //     });
+        
+    //     movie_div.appendChild(addRemoveButton);
+    //     return;
+    // }
+    // else: this movie does not yet exist
+    // addRemoveButton.appendChild(document.createTextNode("Add to list"));
+    //     addRemoveButton.addEventListener('click', () => {
+    //         addMovieButton(data);
+    //     });
+    //     movie_div.appendChild(addRemoveButton);
+    //     return;
 }
 
 // This functions adds a new button for a movie with title and
 // an event handler that calls display_movie when clicked.
-function addMovieButton(data) {
+async function addMovieButton(data) {
+    console.log("Adding movie button", data);
     let watchList = document.getElementById("watchlist");
-    let newButton = document.appendChild(watchList);
+    let newButton = document.createElement('button');
     newButton.appendChild(document.createTextNode(data.title));
     newButton.setAttribute('id', data.id);
     // this could also be the title
-    buttons4.addEventListener('click', () => {
+    newButton.addEventListener('click', () => {
         display_movie(data);
     });
-
     watchList.appendChild(newButton);
 }
 
@@ -95,23 +133,27 @@ function addMovieButton(data) {
 // a previous session.
 // btw if this was legit we would need to do a GET http request to 
 // the backend database server instead of just db.all
-async function drawAllButtons(username) {
+async function drawAllButtons() {
+    console.log("Drawing all buttons", moviesData);
+    moviesData.forEach(movie => {
+        addMovieButton(movie);
+    });
 
-    try {
-        const response = await fetch(`${server_url}/dashboard`, {
-            method: 'GET'
-        });
-        let listOfMovieIds = await response.json();
-        console.log(listOfMovieIds);
+    // try {
+    //     const response = await fetch(`${server_url}/dashboard`, {
+    //         method: 'GET'
+    //     });
+    //     let listOfMovieIds = await response.json();
+    //     console.log(listOfMovieIds);
 
-        listOfMovieIds.forEach(async movie => {
-            let data = await get_movie_by_id(movie.id);
-            addMovieButton(data);
-        });
-    }
-    catch (error) {
-        console.error("Error: in drawAllButtons()", error);
-    }
+    //     listOfMovieIds.forEach(async movie => {
+    //         let data = await get_movie_by_id(movie.id);
+    //         addMovieButton(data);
+    //     });
+    // }
+    // catch (error) {
+    //     console.error("Error: in drawAllButtons()", error);
+    // }
 
     // this is the old version: 
     // let my_movies = (await db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
@@ -127,15 +169,16 @@ async function drawAllButtons(username) {
 // with the button idk.
 // since we only have one movie at time(which is displayed on left)
 // which we could potentially add.
-async function addNewMovie(username, data) {
+async function addNewMovie(data) {
 
     try {
-        const response = await fetch(`${server_url}/dashboard`, {
+        const response = await fetch(`${server_url}/dashboard/?movie_id=${data.id}`, {
             method: 'POST'
         });
         let listOfMovieIds = await response.json();
         console.log(listOfMovieIds);
         addMovieButton(data);
+        moviesData = moviesData.push(data);
     }
     catch (error) {
         console.error("Error: in drawAllButtons()", error);
@@ -146,15 +189,17 @@ async function addNewMovie(username, data) {
     // addMovieButton(data);
 }
 
-async function deleteNewMovie(username, data) {
+async function deleteNewMovie(data) {
     try {
         const response = await fetch(`${server_url}/dashboard/?movie_id=${data.id}`, {
             method: 'DELETE'
-        });
+        }).then(console.log(moviesData));
         let watchList = document.getElementById("watchlist");
         let buttonToBeDeleted = document.getElementById(data.id);
         watchList.removeChild(buttonToBeDeleted);
-
+        const movie_div = document.getElementById('movie_display');
+        movie_div.innerHTML = ``;
+        moviesData = moviesData.filter(movie => movie.id != data.id);
         }
     catch (error) {
         console.error("Error: in deleteNewMovie()", error);

@@ -43,6 +43,54 @@ const server = http.createServer(async (req, res) => {
       }
     });
   }
+  else if (req.url === '/signstyle.css') {
+    fs.readFile('./signstyle.css', (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error loading CSS file');
+      } else {
+        res.setHeader('Content-Type', 'text/css');
+        res.end(data);
+      }
+    });
+  }
+  else if (req.url === '/ARLRDBD_0.TTF') {
+    fs.readFile('./ARLRDBD_0.TTF', (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error loading font file');
+      } else {
+        res.setHeader('Content-Type', 'font/ttf');
+        res.end(data);
+      }
+    });
+  }
+  else if (req.url === '/logo.png') {
+    fs.readFile('./logo.png', (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error loading font file');
+      } else {
+        res.setHeader('Content-Type', 'font/ttf');
+        res.end(data);
+      }
+    });
+  }
+  else if (req.url === '/indexstyle.css') {
+    fs.readFile('indexstyle.css', (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error loading CSS file');
+      } else {
+        res.setHeader('Content-Type', 'text/css');
+        res.end(data);
+      }
+    });
+  }
   else if (req.url.startsWith('/signup')) {
     // Create a new user in the database.
     const parseUrl = url.parse(req.url, true);
@@ -55,14 +103,18 @@ const server = http.createServer(async (req, res) => {
     else {
       try {
         let new_user = await db.run('INSERT INTO users(username, password) VALUES (?, ?)', username, password);
-        if (new_user) {
+        console.log('new user:', new_user);
+        if (await new_user) {
+          console.log('new user2:', new_user);
           const sessionId = new Date().getTime().toString();
-          console.log('user session id', user, sessionId);
+          console.log('user session id', new_user, sessionId);
           try {
-            let session = await db.run('INSERT INTO sessions(session_id, username) VALUES (?, ?)', sessionId, user.username);
+            let session = await db.run('INSERT INTO sessions(session_id, username) VALUES (?, ?)', sessionId, username);
             if (session) {
               // Set a cookie with the user's ID after they log in.
-              res.setHeader('Set-Cookie', [`username=${user.username}`, `sessionId=${sessionId}`]);
+              res.setHeader('Set-Cookie', [`username=${username}`, `sessionId=${sessionId}`]);
+              res.statusCode = 303;
+              res.setHeader('Location', '/dashboard');
               res.end('Signed up!');
             } else {
               res.statusCode = 500;
@@ -72,22 +124,46 @@ const server = http.createServer(async (req, res) => {
           } catch (e) {
             res.statusCode = 500;
             res.setHeader('Content-Type', 'text/plain');
-            res.end('Error signing up');
+            res.end('Error signing up, 2');
           }
         } else {
           res.statusCode = 500;
           res.setHeader('Content-Type', 'text/plain');
-          res.end('Error signing up');
+          res.end('Error signing up, 3');
         }
       }
       catch (e) {
         console.error(e);
         res.statusCode = 500;
         res.setHeader('Content-Type', 'text/plain');
-        res.end('Error signing up');
+        res.end('Error signing up, 4');
       }
     }
-  } else if (req.url === '/login') {
+  } else if (req.url === '/main.js') {
+    fs.readFile('main.js', (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error loading JavaScript file');
+      } else {
+        res.setHeader('Content-Type', 'application/javascript');
+        res.end(data);
+      }
+    });
+  }
+  else if (req.url === '/loginstyle.css') {
+    fs.readFile('./loginstyle.css', (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error loading CSS file');
+      } else {
+        res.setHeader('Content-Type', 'text/css');
+        res.end(data);
+      }
+    });
+  }
+  else if (req.url === '/login') {
     // Navigate to the login page.
     fs.readFile('login.html', (err, data) => {
       if (err) {
@@ -124,7 +200,7 @@ const server = http.createServer(async (req, res) => {
             if (session) {
               // Set a cookie with the user's ID after they log in.
               res.setHeader('Set-Cookie', [`username=${user.username}`, `sessionId=${sessionId}`]);
-              res.statusCode = 200;
+              res.statusCode = 303;
               res.setHeader('Location', '/dashboard');
               res.end('Logged in!');
             } else {
@@ -154,61 +230,96 @@ const server = http.createServer(async (req, res) => {
     }
   } else if (req.url.startsWith('/dashboard')) {
     // Check if the user is logged in by checking if the cookie is set.
-    const cookies = req.headers.cookie ? 
-    req.headers.cookie.split('; ').reduce((cookies, cookie) => {
-      const [name, value] = cookie.split('=');
-      cookies[name] = value;
-      return cookies;
-    }, {}) : {};
+    const cookies = req.headers.cookie ?
+      req.headers.cookie.split('; ').reduce((cookies, cookie) => {
+        const [name, value] = cookie.split('=');
+        cookies[name] = value;
+        return cookies;
+      }, {}) : {};
     const sessionId = cookies.sessionId;
     let matchingSession = await db.get('SELECT * FROM sessions WHERE session_id = ?', sessionId);
-    if(!matchingSession) {
+    if (!matchingSession) {
       res.statusCode = 500;
       res.setHeader('Content-Type', 'text/plain');
       res.end('Could not find a matching session');
       console.log('could not find matching session.')
       return;
     }
-    if(req.method == 'GET'){
-      getAllMoviesForUser(cookies[username], res);
-      return;
+    let moviesData;
+    if (req.method == 'GET') {
+      try {
+        moviesData = await getAllMoviesForUser(cookies['username']);
+      }
+      catch (e) {
+        console.error(e);
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error getting movies');
+      }
     }
+
     const parseUrl = url.parse(req.url, true);
-    const movie_id = parseUrl.query;
+    const movie_id = parseUrl.query['movie_id'];
     console.log('The movie_id query param is: ' + movie_id);
 
-    if(req.method == 'POST'){
-      addNewMovie(cookies[username], movie_id);
+    if (req.method == 'POST') {
+      addNewMovie(cookies['username'], movie_id, res);
       return;
     }
-    if(req.method == 'DELETE') {
-      deleteMovie(cookies[username], res);
+    if (req.method == 'DELETE') {
+      deleteMovie(cookies['username'], movie_id, res);
+      return;
     }
+    fs.readFile('index.html', 'utf8', (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error loading index page');
+      } else {
+        const modifiedData = data.replace('var moviesData;', `var moviesData = ${JSON.stringify(moviesData)};`);
+        res.setHeader('Content-Type', 'text/html');
+        res.end(modifiedData);
+      }
+    });
+  }
+  else {
+    fs.readFile('index.html', (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error loading index page');
+      } else {
+        res.setHeader('Content-Type', 'text/html');
+        res.end(data);
+      }
+    });
   }
 });
 
 
-async function getAllMoviesForUser(username, res) {
-  try {
-    let allMovies = await db.all('SELECT movie_id FROM movies WHERE username = ?');
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.write(JSON.stringify(allMovies));
-  } catch (error) {
-    console.log('error was encountered: ' + error)
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Error getting movies');
-    console.log('error was encountered: ' + error)
-  }
+async function getAllMoviesForUser(username) {
+  // try {
+  let allMovies = await db.all('SELECT movie_id FROM movies WHERE username = ?', username);
+  return allMovies;
+  //   res.statusCode = 200;
+  //   res.setHeader('Content-Type', 'application/json');
+  //   res.write(JSON.stringify(allMovies));
+  //   res.end();
+  // } catch (error) {
+  //   console.log('error was encountered: ' + error)
+  //   res.statusCode = 500;
+  //   res.setHeader('Content-Type', 'text/plain');
+  //   res.end('Error getting movies');
+  //   console.log('error was encountered: ' + error)
+  // }
 }
 
 async function addNewMovie(username, movie_id, res) {
   try {
     await db.run('INSERT INTO movies VALUES (?,?)', username, movie_id);
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');    
-    res.end('Added new movie.');  
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('Added new movie.');
   } catch (error) {
     res.statusCode = 500;
     res.setHeader('Content-Type', 'text/plain');
@@ -221,8 +332,8 @@ async function deleteMovie(username, movie_id, res) {
   try {
     await db.run('DELETE FROM movies WHERE username = ? AND movie_id = ?', username, movie_id);
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');    
-    res.end('Deleted movie.');  
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('Deleted movie.');
   } catch (error) {
     res.statusCode = 500;
     res.setHeader('Content-Type', 'text/plain');

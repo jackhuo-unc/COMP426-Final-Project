@@ -34,8 +34,8 @@ const server = http.createServer(async (req, res) => {
     // Navigate to the signup page.
     fs.readFile('signup.html', (err, data) => {
       if (err) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'text/plain');
+        // res.statusCode = 500;
+        // res.setHeader('Content-Type', 'text/plain');
         res.end('Error loading signup page');
       } else {
         res.setHeader('Content-Type', 'text/html');
@@ -96,8 +96,10 @@ const server = http.createServer(async (req, res) => {
     const parseUrl = url.parse(req.url, true);
     const { username, password } = parseUrl.query;
     if (!username || !password) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'text/plain');
+      // res.statusCode = 400;
+      // res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 303;
+      res.setHeader('Location', '/signup');
       res.end('Invalid username or password');
     }
     else {
@@ -117,25 +119,33 @@ const server = http.createServer(async (req, res) => {
               res.setHeader('Location', '/dashboard');
               res.end('Signed up!');
             } else {
-              res.statusCode = 500;
-              res.setHeader('Content-Type', 'text/plain');
+              res.statusCode = 303;
+              res.setHeader('Location', '/signup');
+              // res.statusCode = 500;
+              // res.setHeader('Content-Type', 'text/plain');
               res.end('Error signing up, no session created');
             }
           } catch (e) {
-            res.statusCode = 500;
-            res.setHeader('Content-Type', 'text/plain');
+            res.statusCode = 303;
+              res.setHeader('Location', '/signup');
+            // res.statusCode = 500;
+            // res.setHeader('Content-Type', 'text/plain');
             res.end('Error signing up, 2');
           }
         } else {
-          res.statusCode = 500;
-          res.setHeader('Content-Type', 'text/plain');
+          res.statusCode = 303;
+              res.setHeader('Location', '/signup');
+          // res.statusCode = 500;
+          // res.setHeader('Content-Type', 'text/plain');
           res.end('Error signing up, 3');
         }
       }
       catch (e) {
-        console.error(e);
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'text/plain');
+        res.statusCode = 303;
+              res.setHeader('Location', '/signup');
+        // console.error(e);
+        // res.statusCode = 500;
+        // res.setHeader('Content-Type', 'text/plain');
         res.end('Error signing up, 4');
       }
     }
@@ -167,8 +177,10 @@ const server = http.createServer(async (req, res) => {
     // Navigate to the login page.
     fs.readFile('login.html', (err, data) => {
       if (err) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'text/plain');
+        res.statusCode = 303;
+        res.setHeader('Location', '/login');
+        // res.statusCode = 500;
+        // res.setHeader('Content-Type', 'text/plain');
         res.end('Error loading login page');
       } else {
         res.setHeader('Content-Type', 'text/html');
@@ -183,8 +195,10 @@ const server = http.createServer(async (req, res) => {
     console.log('username:', username, 'password:', password);
 
     if (!username || !password) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'text/plain');
+      // res.statusCode = 400;
+      // res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 303;
+      res.setHeader('Location', '/login');
       res.end('Invalid username or password');
     }
     else {
@@ -204,27 +218,35 @@ const server = http.createServer(async (req, res) => {
               res.setHeader('Location', '/dashboard');
               res.end('Logged in!');
             } else {
-              res.statusCode = 500;
-              res.setHeader('Content-Type', 'text/plain');
+              // res.statusCode = 500;
+              // res.setHeader('Content-Type', 'text/plain');
+              res.statusCode = 303;
+              res.setHeader('Location', '/login');
               res.end('Error logging in, no session created');
             }
           } catch (e) {
-            res.statusCode = 500;
-            res.setHeader('Content-Type', 'text/plain');
+            // res.statusCode = 500;
+            // res.setHeader('Content-Type', 'text/plain');
+            res.statusCode = 303;
+            res.setHeader('Location', '/login');
             res.end('Error logging in');
           }
         }
         else {
           console.log('user dne', user);
-          res.statusCode = 401;
-          res.setHeader('Content-Type', 'text/plain');
+          // res.statusCode = 401;
+          // res.setHeader('Content-Type', 'text/plain');
+          res.statusCode = 303;
+          res.setHeader('Location', '/login');
           res.end('Invalid username or password');
         }
       }
       catch (e) {
         console.error(e);
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'text/plain');
+        res.statusCode = 303;
+        res.setHeader('Location', '/login');
+        // res.statusCode = 500;
+        // res.setHeader('Content-Type', 'text/plain');
         res.end('Error logging in');
       }
     }
@@ -252,8 +274,10 @@ const server = http.createServer(async (req, res) => {
       }
       catch (e) {
         console.error(e);
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'text/plain');
+        // res.statusCode = 500;
+        // res.setHeader('Content-Type', 'text/plain');
+        res.statusCode = 303;
+        res.setHeader('Location', '/dashboard');
         res.end('Error getting movies');
       }
     }

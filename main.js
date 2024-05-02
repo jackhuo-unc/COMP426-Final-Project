@@ -111,8 +111,7 @@ async function display_movie(data) {
 
     //let my_movies = (await db.all('select movie_id from movies where username = ? and movie_id = ?', username, data.id)).map(s => s.movie_id);
     // console.log('moviesData and data.id', moviesData, data.id);
-    // console.log('moviesData includes data.id?', moviesData[0].id == data.id);
-
+    console.log('Here the bug occurs sometimes: ', logMoviesData());
 
     if (moviesData.map(movie => movie.id).includes(data.id)) {
         addRemoveButton.appendChild(document.createTextNode("Remove from list"));

@@ -145,7 +145,7 @@ const server = http.createServer(async (req, res) => {
         res.end('Error logging in');
       }
     }
-  } else if (req.url === '/dashboard') {
+  } else if (req.url.startsWith('/dashboard')) {
     // Check if the user is logged in by checking if the cookie is set.
     const cookies = req.headers.cookie ? req.headers.cookie.split('; ').reduce((cookies, cookie) => {
       const [name, value] = cookie.split('=');
@@ -153,30 +153,31 @@ const server = http.createServer(async (req, res) => {
       return cookies;
     }, {}) : {};
     const sessionId = cookies.sessionId;
-    db.get('SELECT * FROM sessions WHERE session_id = ?', sessionId, (err, session) => {
-      if (err) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('Error loading dashboard');
-      } else if (session) {
-        // we did /dashboard/username or just /dashboard
-        res.setHeader('Content-Type', 'text/plain');
-        // here would I do the sql stuff to get all the info for this user?
-        // also, why are sql calls not async?
-        let my_movies = (db.all('select movie_id from movies where username = ?', username)).map(s => s.movie_id);
-        res.body.movies = my_movies; // how about this
+    let matchingSession = await db.get('SELECT * FROM sessions WHERE session_id = ?', sessionId);
+    if(!matchingSession) {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Could not find a matching session');
+      console.log('could not find matching session.')
+      return;
+    }
+    if(req.method == 'GET'){
+      getAllMoviesForUser(cookies[username], res);
+      return;
+    }
+    const parseUrl = url.parse(req.url, true);
+    const movie_id = parseUrl.query;
+    console.log('The movie_id query param is: ' + movie_id);
 
-        res.end('Welcome to the dashboard!');
-      } else {
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('Please log in first.');
-      }
-    });
-  } else {
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello, world!');
+    if(req.method == 'POST'){
+      addNewMovie(cookies[username], movie_id);
+      return;
+    }
+    if(req.method == 'DELETE') {
+      deleteMovie(cookies[username], res);
+    }
   }
-});
+
 
 async function getAllMoviesForUser(username, res) {
   try {

@@ -104,6 +104,7 @@ button {
     background-color: white;
     border-radius: 5px;
     width: 40%;
+    max-width: 300px;
 }
 
 .login-form input[type="text"]{

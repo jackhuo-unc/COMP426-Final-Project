@@ -88,40 +88,63 @@ catch (error) {
 // could be called by search or by clicking on a button
 // will query db and add an add or remove button accordingly
 async function display_movie(data) {
+    if(!data) {
+        return;
+    }
+    if(!data.id){
+        return;
+    }
+
     const movie_div = document.getElementById('movie_display');
     movie_div.innerHTML = `
     <img src= "https://image.tmdb.org/t/p/w500${data.poster_path}" alt="MOVIE">
     <h2>${data.title}</h2>
-    <h3>${data.release_date}</h3>
+    <h2>Released: ${data.release_date}</h3>
     <p>${data.overview}</p>
-    <p>${data.vote_average}</p>
+    <p>Rating: ${data.vote_average} / 10</p>
     `;
 
     let addRemoveButton = document.createElement('button');
+    addRemoveButton.setAttribute('id', 'addRemoveButton');
 
     // how best to have this username?
 
     //let my_movies = (await db.all('select movie_id from movies where username = ? and movie_id = ?', username, data.id)).map(s => s.movie_id);
+    // console.log('moviesData and data.id', moviesData, data.id);
+    // console.log('moviesData includes data.id?', moviesData[0].id == data.id);
+
 
     if (moviesData.map(movie => movie.id).includes(data.id)) {
         addRemoveButton.appendChild(document.createTextNode("Remove from list"));
             addRemoveButton.addEventListener('click', async () => {
                 await deleteNewMovie(data);
             });
-            
-            movie_div.appendChild(addRemoveButton);
-            return;
     }
     else {
         addRemoveButton.appendChild(document.createTextNode("Add to list"));
         addRemoveButton.addEventListener('click', async () => {
             await addNewMovie(data);
-            addMovieButton(data);
+            updateAddRemove(data);
         });
-        movie_div.appendChild(addRemoveButton);
-        return;
     }
-    
+    movie_div.appendChild(addRemoveButton);
+    addRemoveButton.setAttribute('id', 'addRemoveButton');
+}
+
+function updateAddRemove(data){
+    let addRemoveButton = document.getElementById('addRemoveButton');
+    addRemoveButton.remove();
+
+    const movie_div = document.getElementById('movie_display');
+    addRemoveButton = document.createElement('button');
+
+    addRemoveButton.appendChild(document.createTextNode("Remove from list"));
+    addRemoveButton.addEventListener('click', async () => {
+            await deleteNewMovie(data);
+        });
+    addRemoveButton.setAttribute('id', 'addRemoveButton');
+    movie_div.appendChild(addRemoveButton);
+}
     // if(moviesData[] != null) { // if this movie exists
     //     addRemoveButton.appendChild(document.createTextNode("Remove from list"));
     //     addRemoveButton.addEventListener('click', () => {
@@ -138,7 +161,7 @@ async function display_movie(data) {
     //     });
     //     movie_div.appendChild(addRemoveButton);
     //     return;
-}
+
 
 // This functions adds a new button for a movie with title and
 // an event handler that calls display_movie when clicked.
@@ -202,7 +225,7 @@ async function addNewMovie(data) {
         const response = await fetch(`${server_url}/dashboard/?movie_id=${data.id}`, {
             method: 'POST'
         });
-        let listOfMovieIds = await response.json();
+        let listOfMovieIds = response;
         console.log(listOfMovieIds);
         addMovieButton(data);
         moviesData = moviesData.push(data);

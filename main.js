@@ -1,14 +1,41 @@
-// import {db} from './db.mjs';
-// document.onload = async function() {
-//     console.log('on load', moviesData);
-//     drawAllButtons(movieData);
-// }
+document.addEventListener('DOMContentLoaded', async () => {
+    var isLoggedIn = getCookie('sessionId') != null;
+    console.log('isLoggedIn', isLoggedIn);
+
+if (isLoggedIn) {
+  let logoutButton = document.getElementById('logoutButton')
+    logoutButton.style.display = 'flex';
+    logoutButton.addEventListener('click', () => {
+        fetch('/logout', {method: 'POST'}).then(() => {
+            window.location.reload();
+        })
+    });
+    let currentUser = document.getElementById('currentUser');
+    currentUser.style.display = 'flex';
+    currentUser.innerText = 'Hi, ' + getCookie('username');
+} else {
+  let loginButton = document.getElementById('loginButton')
+  loginButton.style.display = 'flex';
+}
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      get_movie_by_name();
+      console.log('Enter key pressed')
+    }
+  });
+});
 console.log('main.js loaded', moviesData);
 Promise.all(moviesData.map(async obj => await get_movie_by_id(obj.movie_id)))
 .then(newMoviesData => {
     moviesData = newMoviesData;
     drawAllButtons();
 });
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
 
 // api calls and display
 const server_url = 'http://localhost:3001';

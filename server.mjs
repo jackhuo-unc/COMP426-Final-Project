@@ -91,6 +91,12 @@ const server = http.createServer(async (req, res) => {
       }
     });
   }
+  else if (req.url === '/logout' && req.method == 'POST') {
+    res.setHeader('Set-Cookie', [`username=; expires=Thu, 01 Jan 1970 00:00:00 GMT`, `sessionId=; expires=Thu, 01 Jan 1970 00:00:00 GMT`]);
+    res.statusCode = 302;
+    res.setHeader('Location', '/');
+    res.end();
+  }
   else if (req.url.startsWith('/signup')) {
     // Create a new user in the database.
     const parseUrl = url.parse(req.url, true);
@@ -261,8 +267,10 @@ const server = http.createServer(async (req, res) => {
     const sessionId = cookies.sessionId;
     let matchingSession = await db.get('SELECT * FROM sessions WHERE session_id = ?', sessionId);
     if (!matchingSession) {
-      res.statusCode = 500;
-      res.setHeader('Content-Type', 'text/plain');
+      // res.statusCode = 500;
+      // res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 303;
+      res.setHeader('Location', '/');
       res.end('Could not find a matching session');
       console.log('could not find matching session.')
       return;

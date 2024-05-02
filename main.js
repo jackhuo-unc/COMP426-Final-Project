@@ -98,7 +98,7 @@ function addMovieButton(data) {
 async function drawAllButtons(username) {
 
     try {
-        const response = await fetch(`${server_url}/dashboard/${username}`, {
+        const response = await fetch(`${server_url}/dashboard`, {
             method: 'GET'
         });
         let listOfMovieIds = await response.json();
@@ -130,7 +130,7 @@ async function drawAllButtons(username) {
 async function addNewMovie(username, data) {
 
     try {
-        const response = await fetch(`${server_url}/dashboard/${username}`, {
+        const response = await fetch(`${server_url}/dashboard`, {
             method: 'POST'
         });
         let listOfMovieIds = await response.json();
@@ -148,7 +148,7 @@ async function addNewMovie(username, data) {
 
 async function deleteNewMovie(username, data) {
     try {
-        const response = await fetch(`${server_url}/dashboard/${username}?movie_id=${data.id}`, {
+        const response = await fetch(`${server_url}/dashboard/?movie_id=${data.id}`, {
             method: 'DELETE'
         });
         let watchList = document.getElementById("watchlist");

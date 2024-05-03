@@ -91,7 +91,18 @@ const server = http.createServer(async (req, res) => {
       }
     });
   }
-  else if (req.url === '/logout' && req.method == 'POST') {
+  else if (req.url === '/logout' && req.method == 'DELETE') { // deletes cookie on client-side and removes session on server-side
+      const cookies = req.headers.cookie ?
+      req.headers.cookie.split('; ').reduce((cookies, cookie) => {
+        const [name, value] = cookie.split('=');
+        cookies[name] = value;
+        return cookies;
+      }, {}) : {};
+    const sessionId = cookies.sessionId;
+    console.log(sessionId);
+
+    await db.run('DELETE FROM sessions WHERE session_id = ?', sessionId);
+
     res.setHeader('Set-Cookie', [`username=; expires=Thu, 01 Jan 1970 00:00:00 GMT`, `sessionId=; expires=Thu, 01 Jan 1970 00:00:00 GMT`]);
     res.statusCode = 302;
     res.setHeader('Location', '/');

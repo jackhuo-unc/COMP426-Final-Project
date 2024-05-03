@@ -6,7 +6,7 @@ if (isLoggedIn) {
   let logoutButton = document.getElementById('logoutButton')
     logoutButton.style.display = 'flex';
     logoutButton.addEventListener('click', () => {
-        fetch('/logout', {method: 'POST'}).then(() => {
+        fetch('/logout', {method: 'DELETE'}).then(() => {
             window.location.reload();
         })
     });

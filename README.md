@@ -1,4 +1,4 @@
-# Comp426FinalProject
+# Noteboxd
 
 Noteboxd is a simpler version of the well known movie rating platform, [Letterboxd](https://letterboxd.com/). This application is designed to add movies to a basic watchlist. Movies are added to from search and can also be removed.
 
